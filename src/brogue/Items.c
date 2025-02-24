@@ -167,17 +167,18 @@ item *makeItemInto(item *theItem, unsigned long itemCategory, short itemKind) {
                     break;
             }
 
-            if (rand_percent(40)) {
-                theItem->enchant1 += rand_range(1, 3);
+            if (rand_percent(90)) {
+                theItem->enchant1 += rand_range(2, 3);
                 if (rand_percent(50)) {
                     // cursed
-                    theItem->enchant1 *= -1;
-                    theItem->flags |= ITEM_CURSED;
-                    if (rand_percent(33)) { // give it a bad runic
-                        theItem->enchant2 = rand_range(NUMBER_GOOD_WEAPON_ENCHANT_KINDS, NUMBER_WEAPON_RUNIC_KINDS - 1);
-                        theItem->flags |= ITEM_RUNIC;
-                    }
-                } else if (rand_range(3, 10)
+                    // SzS -- no cursed stuff, thank you
+                    // theItem->enchant1 *= -1;
+                    // theItem->flags |= ITEM_CURSED;
+                    // if (rand_percent(33)) { // give it a bad runic
+                    //     theItem->enchant2 = rand_range(NUMBER_GOOD_WEAPON_ENCHANT_KINDS, NUMBER_WEAPON_RUNIC_KINDS - 1);
+                    //     theItem->flags |= ITEM_RUNIC;
+                    // }
+                } else if (rand_range(5, 10)
                            * ((theItem->flags & ITEM_ATTACKS_STAGGER) ? 2 : 1)
                            / ((theItem->flags & ITEM_ATTACKS_QUICKLY) ? 2 : 1)
                            / ((theItem->flags & ITEM_ATTACKS_EXTEND) ? 2 : 1)
@@ -189,22 +190,24 @@ item *makeItemInto(item *theItem, unsigned long itemCategory, short itemKind) {
                         theItem->vorpalEnemy = chooseVorpalEnemy();
                     }
                 } else {
-                    while (rand_percent(10)) {
+                    while (rand_percent(60)) {
                         theItem->enchant1++;
                     }
                 }
             }
             if (itemKind == DART || itemKind == INCENDIARY_DART || itemKind == JAVELIN) {
                 if (itemKind == INCENDIARY_DART) {
-                    theItem->quantity = rand_range(3, 6);
+                    theItem->quantity = rand_range(6, 25);
                 } else {
-                    theItem->quantity = rand_range(5, 18);
+                    theItem->quantity = rand_range(15, 58);
                 }
                 theItem->quiverNumber = rand_range(1, 60000);
                 theItem->flags &= ~(ITEM_CURSED | ITEM_RUNIC); // throwing weapons can't be cursed or runic
                 theItem->enchant1 = 0; // throwing weapons can't be magical
             }
-            theItem->charges = gameConst->weaponKillsToAutoID; // kill 20 enemies to auto-identify
+            //theItem->charges = gameConst->weaponKillsToAutoID; // kill 20 enemies to auto-identify
+            theItem->flags |= ITEM_IDENTIFIED;
+            theItem->flags |= ITEM_CAN_BE_IDENTIFIED;
             break;
 
         case ARMOR:
@@ -215,17 +218,18 @@ item *makeItemInto(item *theItem, unsigned long itemCategory, short itemKind) {
             theItem->armor = randClump(armorTable[itemKind].range);
             theItem->strengthRequired = armorTable[itemKind].strengthRequired;
             theItem->displayChar = G_ARMOR;
-            theItem->charges = gameConst->armorDelayToAutoID; // this many turns until it reveals its enchants and whether runic
-            if (rand_percent(40)) {
-                theItem->enchant1 += rand_range(1, 3);
+            //theItem->charges = gameConst->armorDelayToAutoID; // this many turns until it reveals its enchants and whether runic
+            if (rand_percent(70)) {
+                theItem->enchant1 += rand_range(3, 8);
                 if (rand_percent(50)) {
                     // cursed
-                    theItem->enchant1 *= -1;
-                    theItem->flags |= ITEM_CURSED;
-                    if (rand_percent(33)) { // give it a bad runic
-                        theItem->enchant2 = rand_range(NUMBER_GOOD_ARMOR_ENCHANT_KINDS, NUMBER_ARMOR_ENCHANT_KINDS - 1);
-                        theItem->flags |= ITEM_RUNIC;
-                    }
+                    // SzS -- no cursed stuff, thank you
+                    // theItem->enchant1 *= -1;
+                    // theItem->flags |= ITEM_CURSED;
+                    // if (rand_percent(33)) { // give it a bad runic
+                    //     theItem->enchant2 = rand_range(NUMBER_GOOD_ARMOR_ENCHANT_KINDS, NUMBER_ARMOR_ENCHANT_KINDS - 1);
+                    //     theItem->flags |= ITEM_RUNIC;
+                    // }
                 } else if (rand_range(0, 95) > theItem->armor) { // give it a good runic
                     theItem->enchant2 = rand_range(0, NUMBER_GOOD_ARMOR_ENCHANT_KINDS - 1);
                     theItem->flags |= ITEM_RUNIC;
@@ -233,11 +237,13 @@ item *makeItemInto(item *theItem, unsigned long itemCategory, short itemKind) {
                         theItem->vorpalEnemy = chooseVorpalEnemy();
                     }
                 } else {
-                    while (rand_percent(10)) {
+                    while (rand_percent(60)) {
                         theItem->enchant1++;
                     }
                 }
             }
+            theItem->flags |= ITEM_IDENTIFIED;
+            theItem->flags |= ITEM_CAN_BE_IDENTIFIED;
             break;
         case SCROLL:
             if (itemKind < 0) {
@@ -246,6 +252,8 @@ item *makeItemInto(item *theItem, unsigned long itemCategory, short itemKind) {
             theEntry = &scrollTable[itemKind];
             theItem->displayChar = G_SCROLL;
             theItem->flags |= ITEM_FLAMMABLE;
+            // theItem->flags |= ITEM_IDENTIFIED;
+            theItem->flags |= ITEM_CAN_BE_IDENTIFIED;
             break;
         case POTION:
             if (itemKind < 0) {
@@ -253,6 +261,8 @@ item *makeItemInto(item *theItem, unsigned long itemCategory, short itemKind) {
             }
             theEntry = &potionTable[itemKind];
             theItem->displayChar = G_POTION;
+            // theItem->flags |= ITEM_IDENTIFIED;
+            theItem->flags |= ITEM_CAN_BE_IDENTIFIED;
             break;
         case STAFF:
             if (itemKind < 0) {
@@ -261,17 +271,19 @@ item *makeItemInto(item *theItem, unsigned long itemCategory, short itemKind) {
             theEntry = &staffTable[itemKind];
             theItem->displayChar = G_STAFF;
             theItem->charges = 2;
-            if (rand_percent(50)) {
+            if (rand_percent(90)) {
                 theItem->charges++;
-                if (rand_percent(15)) {
+                if (rand_percent(80)) {
                     theItem->charges++;
-                    while (rand_percent(10)) {
+                    while (rand_percent(30)) {
                         theItem->charges++;
                     }
                 }
             }
             theItem->enchant1 = theItem->charges;
             theItem->enchant2 = (itemKind == STAFF_BLINKING || itemKind == STAFF_OBSTRUCTION ? 1000 : 500); // start with no recharging mojo
+            theItem->flags |= ITEM_IDENTIFIED;
+            theItem->flags |= ITEM_CAN_BE_IDENTIFIED;
             break;
         case WAND:
             if (itemKind < 0) {
@@ -280,6 +292,8 @@ item *makeItemInto(item *theItem, unsigned long itemCategory, short itemKind) {
             theEntry = &(wandTable[itemKind]);
             theItem->displayChar = G_WAND;
             theItem->charges = randClump(wandTable[itemKind].range);
+            theItem->flags |= ITEM_IDENTIFIED;
+            theItem->flags |= ITEM_CAN_BE_IDENTIFIED;
             break;
         case RING:
             if (itemKind < 0) {
@@ -289,15 +303,19 @@ item *makeItemInto(item *theItem, unsigned long itemCategory, short itemKind) {
             theItem->displayChar = G_RING;
             theItem->enchant1 = randClump(ringTable[itemKind].range);
             theItem->charges = gameConst->ringDelayToAutoID; // how many turns of being worn until it auto-identifies
+            theItem->enchant1++;
             if (rand_percent(16)) {
                 // cursed
-                theItem->enchant1 *= -1;
-                theItem->flags |= ITEM_CURSED;
+                // SzS -- no cursed stuff, thank you
+                // theItem->enchant1 *= -1;
+                // theItem->flags |= ITEM_CURSED;
             } else {
-                while (rand_percent(10)) {
+                while (rand_percent(70)) {
                     theItem->enchant1++;
                 }
             }
+            theItem->flags |= ITEM_IDENTIFIED;
+            theItem->flags |= ITEM_CAN_BE_IDENTIFIED;
             break;
         case CHARM:
             if (itemKind < 0) {
@@ -306,7 +324,7 @@ item *makeItemInto(item *theItem, unsigned long itemCategory, short itemKind) {
             theItem->displayChar = G_CHARM;
             theItem->charges = 0; // Charms are initially ready for use.
             theItem->enchant1 = randClump(charmTable[itemKind].range);
-            while (rand_percent(7)) {
+            while (rand_percent(70)) {
                 theItem->enchant1++;
             }
             theItem->flags |= ITEM_IDENTIFIED;

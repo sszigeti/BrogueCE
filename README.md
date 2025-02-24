@@ -1,6 +1,8 @@
 Brogue CE
 =========
 
+# Warning: this version of Brogue is outdated. It's also modified, so it grants more powerful items. This repository at https://github.com/sszigeti/ is not the recommended, up-to-date version. For the proper repository go to https://github.com/tmewett/BrogueCE
+
 > *Countless adventurers before you have descended this torch-lit staircase,
 > seeking the promised riches below. As you reach the bottom and step into
 > the wide cavern, the doors behind you seal with a powerful magic...*
